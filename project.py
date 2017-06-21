@@ -50,8 +50,7 @@ def add_friend(name):
 
 
 def add_status(name):
-    print 'Status'
-
+    print 'Add Status '
 
 def send_message():
     print 'Send Message'
