@@ -5,7 +5,6 @@ spy = {
     'age': None,
     'rating': None,
     'spy_is_online': None,
-    'chats':  [],
     'current_status_message': None,
     'old_status': []
 }
@@ -15,6 +14,12 @@ friends = {
     'salutation': None,
     'age': None,
     'rating': None,
-    'spy_is_online': None
+    'friend_is_online': None,
+    'chats': []
 }
 friends_list = []
+chat = {
+  'sent_by_me': None,
+  'message': None,
+  'datetime': None
+}
