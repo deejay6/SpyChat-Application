@@ -1,4 +1,5 @@
-from spy_details import spy, spy_list, friends, friends_list
+from spy_details import spy, spy_list, friends, friends_list,chat
+from datetime import datetime
 print 'Welcome To SpyChat Application'
 
 
@@ -41,7 +42,7 @@ def add_friend(name):
             print 'Your friend can always do better'
         else:
             print 'We can always use somebody to help him in the office.'
-        friends['spy_is_online'] = True
+        friends['friend_is_online'] = True
         print "Friend Added Successfully"
         friends_list.append(friends.copy())
         print friends_list
@@ -50,14 +51,92 @@ def add_friend(name):
 
 
 def add_status(name):
-    print 'Add Status '
+    print spy_list
+    for i in range(0, len(spy_list)):
+        if spy_list[i]['name'] == name:
+            if not spy_list[i]['old_status']:
+                status_message = raw_input("Enter Your Status Message: ")
+                if len(status_message) > 0:
+                    print spy_list[i]['name']
+                    spy_list[i]['old_status'].append(status_message)
+                    spy_list[i]['current_status_message'] = status_message
+                    print spy_list
+                    break
+                else:
+                    print 'Status Mesage Cannot Be Blank'
+            else:
+                print spy_list
+                print "Your Old Status Messages Are:"
+                print spy_list[i]['old_status']
+                print len(spy_list[i]['old_status'])
+                status_number = 1
+                for j in range(0, len(spy_list[i]['old_status'])):
+                    print 'hey'
+                    print '%d %s' % (status_number, spy_list[i]['old_status'][j])
+                while True:
+                    index = raw_input("Enter Your Choice: ")
+                    if len(index) > 1:
+                        print 'Please Enter Valid Option'
+                    else:
+                        try:
+                            index = int(index)
+                            break
+                        except:
+                            print 'Please Enter Valid Option'
+                index = int(index)
+                spy_list[i]['current_status_message'] = spy_list[i]['old_status'][index-1]
+                print spy_list[i]['current_status_message']
+                print spy_list
 
-def send_message():
-    print 'Send Message'
+        break
 
 
-def read_chats():
-    print 'Read Chats'
+def select_friend(name):
+    print "Select Your Friend From Given List"
+    friend_number = 1
+    if not friends_list:
+        print 'Add Friends'
+        return 0
+    else:
+        for i in range(0, len(friends_list)):
+            if friends_list[i]['friend_of'] == name:
+                print "%d %s %s aged %d having ratings %.2f is online" % (friend_number, friends_list[i]['salutation'],
+                                                                          friends_list[i]['name'],
+                                                                          friends_list[i]['age'],
+                                                                          friends_list[i]['rating'])
+                friend_number = friend_number + 1
+        while True:
+            select = raw_input("Enter Your Choice: ")
+            if len(select) > 1:
+                print 'Please Enter Valid Option'
+            else:
+                try:
+                    select = int(select)
+                    break
+                except:
+                    print 'Please Enter Valid Option'
+        select = int(select)
+        return select-1
+
+
+def send_message(name):
+    friend_id = select_friend(name)
+    while True:
+        chat['message'] = raw_input("Enter Secret Message: ")
+        if len(chat['message']) > 0:
+            break
+        else:
+            print "Message can't be kept blank"
+    chat['sent_by_me'] = True
+    chat['datetime'] = datetime.now()
+    print friends_list[friend_id]['name']
+    print friends_list[friend_id]['chats']
+    friends_list[friend_id]['chats'].append(chat.copy())
+    print friends_list
+
+
+def read_message():
+    print 'Read Message'
 
 
 def login():
@@ -86,9 +165,9 @@ def login():
                 elif choice == 2:
                     add_status(name)
                 elif choice == 3:
-                    send_message()
+                    send_message(name)
                 elif choice == 4:
-                    read_chats()
+                    read_message()
                 elif choice == 5:
                     start()
                 else:
