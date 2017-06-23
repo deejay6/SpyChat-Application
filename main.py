@@ -1,50 +1,66 @@
-from spy_details import Spy, Friend, spy_list, friend_list
+from spy_details import Spy, Friend, spy_list, Chat
+import time
+from termcolor import colored
+import random
+
+random_number = random.randint(1, 10)
+
+# global variables
+
+store = []
+values = []
+encryption_key = 0
+s = []
+some_special_words = {
+    'SOS': "Help me out !!",
+    'ILU': "I LOVE YOU ",
+    'OMW': "ON MY WAY"
+}
 
 
 def add_friend(login_name):
-    friend_of = login_name
     while True:
-        friend_name = raw_input('Hey What\'s Your Friend\'s Name !!!?? : ')
-        if friend_name.isalpha() == True and len(friend_name) > 0:
+        name = raw_input('Hey What\'s Your Friend\'s Name !!!?? : ')
+        if name.isalpha() == True and len(name) > 0:
             break
         else:
             print 'Please Enter Valid Name'
     while True:
-        friend_salutation = raw_input('Should I Call Your Friend Mister or Miss?? : ')
-        if friend_salutation == "Mister" or friend_salutation == "Miss":
+        salutation = raw_input('Should I Call Your Friend Mister or Miss?? : ')
+        if salutation == "Mister" or salutation == "Miss":
             break
         else:
             print "Please Enter Valid Salutation"
     while True:
-        friend_age = raw_input("What\'s Your Friend's Age :? : ")
+        age = raw_input("What\'s Your Friend's Age :? : ")
         try:
-            friend_age = int(friend_age)
+            age = int(age)
             break
         except:
             print 'Please Enter Valid Age'
-    friend_age = int(friend_age)
-    if friend_age > 12 and friend_age < 50:
+    age = int(age)
+    if (age > 12) and (age < 50):
         while True:
-            friend_rating = raw_input("What\'s Your Friend's Rating?? : ")
+            rating = raw_input("What\'s Your Friend's Rating?? : ")
             try:
-                friend_rating = float(friend_rating)
+                rating = float(rating)
                 break
             except:
                 print 'Please Enter Valid Rating'
-        friend_rating = float(friend_rating)
+        rating = float(rating)
         friend_is_online = True
-        friend_list.append(Friend(friend_name, friend_salutation, friend_age, friend_rating, friend_is_online,friend_of))
-        for i in range(0 , len(friend_list)):
-            if friend_list[i].friend_of == friend_of:
-                print "Friends are: "
-                print friend_list[i].name
+        for i in range(0, len(spy_list)):
+            if spy_list[i].name == login_name:
+                spy_list[i].friend_list.append(Friend(name, salutation, age, rating, friend_is_online, []))
+                for j in range(0, len(spy_list[i].friend_list)):
+                    print "%s %s " % (spy_list[i].friend_list[j].name, spy_list[i].friend_list[j].chats)
+
     else:
         print 'Sorry you are not of the correct age to be a friend'
 
 
-
 def add_status(login_name):
-    for i in range(0 , len(spy_list)):
+    for i in range(0, len(spy_list)):
         if spy_list[i].name == login_name:
             if not spy_list[i].old_status:
                 while True:
@@ -52,7 +68,7 @@ def add_status(login_name):
                     if len(status_message) > 0:
                         break
                     else:
-                        print "Mesage can't be kept blank"
+                        print "Message can't be kept blank"
                 spy_list[i].old_status.append(status_message)
                 spy_list[i].current_status_message = status_message
                 print "Your current status message is: " + spy_list[i].current_status_message
@@ -61,7 +77,7 @@ def add_status(login_name):
                 status_number = 1
                 for j in range(0, len(spy_list[i].old_status)):
                     print '%d %s' % (status_number, spy_list[i].old_status[j])
-                    status_number = status_number +1
+                    status_number = status_number + 1
                 ch = raw_input("Do you want to add new Status(Y/N):")
                 if ch.upper() == "Y":
                     while True:
@@ -75,7 +91,7 @@ def add_status(login_name):
                     spy_list[i].current_status_message = status_message
                     print spy_list[i].current_status_message
                     print spy_list[i]
-                elif ch.upper()=="N":
+                elif ch.upper() == "N":
                     while True:
                         index = raw_input("Please Select Your Status From Above Menu: ")
                         if len(index) > 1:
@@ -87,21 +103,90 @@ def add_status(login_name):
                             except:
                                 print 'Please Enter Valid Option'
                     index = int(index)
-                    spy_list[i].current_status_message = spy_list[i].old_status[index-1]
+                    spy_list[i].current_status_message = spy_list[i].old_status[index - 1]
                     print "Your current status is: " + spy_list[i].current_status_message
 
 
+def select_friend(login_name):
+    select = 1
+    print login_name
+    for i in range(0, len(spy_list)):
+        if spy_list[i].name == login_name:
+            if not spy_list[i].friend_list:
+                print "You Dont Have Any Friends Buddy"
+                return 0
+            else:
+                print "Your Friends Are: "
+                for j in range(0, len(spy_list[i].friend_list)):
+                    print "%d. %s %s aged %d having ratings %d is online" % (
+                    select, spy_list[i].friend_list[j].salutation, spy_list[i].friend_list[j].name,
+                    spy_list[i].friend_list[j].age, spy_list[i].friend_list[j].rating)
+                    select = select + 1
+                while True:
+                    choice = raw_input("Please Select Your Friend From Above Menu: ")
+                    if len(choice) > 1:
+                        print 'Please Enter Valid Option'
+                    else:
+                        try:
+                            choice = int(choice)
+                            break
+                        except:
+                            print 'Please Enter Valid Option'
+                choice = int(choice)
+                return choice - 1
+
+
 def send_message(login_name):
+    print colored("WARNING", "red")
+    print colored("words limit is 100,if message is exceeded by 100,you will be deleted automatically\n", "red")
+
+    friend_choice = select_friend(login_name)
+    print friend_choice
+
+    print "What do you want to say? \n 1.Send a secret message \n 2. Send a direct short message to user"
+    choice = int(raw_input("Enter Your Choice: "))
+
+    if choice == 1:
+        message = raw_input("Enter your text message to be encrypted:? \n")
+        for i in range(0, len(spy_list)):
+            if spy_list[i].name == login_name:
+                if 0 < len(message) < 100:
+                    encryption_key = int(raw_input("Enter your encryption key:? \n"))
+                    for j in range(0, len(message)):
+                        store.append(ord(message[j]) + encryption_key + random_number)
+                        print store
+                    chat_message = store
+                    chat_sent_by_me = True
+                    spy_list[i].friend_list[friend_choice].chats.append(Chat(chat_message, chat_sent_by_me))
+                    time.sleep(2)
+                    print colored("MESSAGE IS ENCRYPTING..................", "red")
+                    time.sleep(0.5)
+                    print "ENCRYPTED"
+                    print "Your secret message  is ready!"
+                    print colored(store, "yellow")
+                    break
+                elif len(message) > 100:
+                    print "Friend Deleted Is:" + spy_list[i].friends_list[friend_choice].name
+                    del spy_list[i].friends_list[friend_choice]
+        else:
+            print "enter the correct detail"
+
+    elif choice == 2:
+        print(" HINT ", some_special_words.keys())
+        sos_message = raw_input("Enter The Message :")
+
+        for i in some_special_words.keys():
+            if sos_message == i:
+                values.append(some_special_words[i])
+        chat_message = values
+        chat_sent_by_me = False
+        for i in range(0, len(spy_list)):
+            if spy_list[i].name == login_name:
+                spy_list[i].friends_list[friend_choice].chat.append(Chat(chat_message, chat_sent_by_me))
+
+
+def read_message():
     print ""
-
-
-def read_message(login_name):
-    print ""
-
-
-
-
-
 
 
 def signup():
@@ -144,8 +229,8 @@ def signup():
             print 'We can always use somebody to help in the office.'
         spy_is_online = True
         print 'Authentication complete. Welcome %s %s spy_age: %d  and rating of: %.2f Proud to have you onboard' % (
-               spy_salutation, spy_name, spy_age, spy_rating)
-        spy_list.append(Spy(spy_name, spy_salutation, spy_age, spy_rating, spy_is_online,None,[], []))
+            spy_salutation, spy_name, spy_age, spy_rating)
+        spy_list.append(Spy(spy_name, spy_salutation, spy_age, spy_rating, spy_is_online, None, [], []))
     else:
         print 'Sorry you are not of the correct age to be a spy'
 
@@ -158,11 +243,12 @@ def login():
         else:
             print "Name can't be kept blank!!"
 
-    for i in range(0 ,len(spy_list)):
+    for i in range(0, len(spy_list)):
         if spy_list[i].name == login_name:
             print "Your Details: "
-            print " Name: %s %s Age: %d Rating: %.2f Online: %s " %(spy_list[i].salutation, spy_list[i].name, spy_list[i].age, spy_list[i].rating,
-                                                                    spy_list[i].spy_is_online)
+            print " Name: %s %s Age: %d Rating: %.2f Online: %s " % (
+            spy_list[i].salutation, spy_list[i].name, spy_list[i].age, spy_list[i].rating,
+            spy_list[i].spy_is_online)
             while True:
                 print "What Do You Want To Do?\n1.Add Friend\n2.Add Status Update\n3.Send Secret Message" \
                       "\n4.Read Chats\n5.Exit"
@@ -197,9 +283,7 @@ def login():
             print "You Are Not Existing Spy!! Please Sign Up"
 
 
-
 def start():
-
     while True:
         print "Please Choose The Option From The Given Menu: \n 1.SignUp \n 2.Login \n 3.Exit"
         while True:
@@ -222,6 +306,8 @@ def start():
         else:
             print 'Enter Valid Choice'
         ch = raw_input(" Do You Wish To Continue(Y/N): ")
-        if ch == 'N'or ch == 'n':
+        if ch == 'N' or ch == 'n':
             break
+
+
 start()
