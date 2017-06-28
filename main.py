@@ -1,35 +1,46 @@
+# ----------------------------------------------------- SpyChat Application ----------------------------------------------------------
+# Features :1. Login and SignUp Facility For Spy .Algorithm is set in such a way that session of multiple spy will be managed properly.
+# 2.Spy can add friend and delete friends. 3. Spy is able to send secret message using encryption technique . 4. Spy can also read the
+# chat history.
 from spy_details import Spy, Friend, spy_list, Chat
 import time
 from termcolor import colored
 import random
 
-random_number = random.randint(1, 10)
 
 # global variables
 store = []
 values = []
 encryption_key = 0
-s = []
+random_number = random.randint(1, 10)  # Use for encryption purpose.
 some_special_words = {
     'SOS': "Help me out !!",
     'ILU': "I LOVE YOU ",
     'OMW': "ON MY WAY"
 }
 
+# Function to add friend .
+
 
 def add_friend(login_name):
+
+    # Friend's name cannot be blank and should only contains alphabets.
     while True:
         name = raw_input('Hey What\'s Your Friend\'s Name !!!?? : ')
         if name.isalpha() and len(name) > 0:
             break
         else:
             print 'Please Enter Valid Name'
+
+    # Friend's salutation should be defined as 'Miss' or "Mister'
     while True:
         salutation = raw_input('Should I Call Your Friend Mister or Miss?? : ')
         if salutation == "Mister" or salutation == "Miss":
             break
         else:
             print "Please Enter Valid Salutation"
+
+    # Friend's age should be integer and cannot be blank.
     while True:
         age = raw_input("What\'s Your Friend's Age :? : ")
         try:
@@ -57,12 +68,15 @@ def add_friend(login_name):
     else:
         print 'Sorry you are not of the correct age to be a friend'
 
+# Function to add status.
+
 
 def add_status(login_name):
     for i in range(0, len(spy_list)):
         if spy_list[i].name == login_name:
             if not spy_list[i].old_status:
                 while True:
+                    # Status message cannot be kept blank
                     status_message = raw_input("Enter Your Status Message: ")
                     if len(status_message) > 0:
                         break
@@ -105,10 +119,12 @@ def add_status(login_name):
                     spy_list[i].current_status_message = spy_list[i].old_status[index - 1]
                     print "Your current status is: " + spy_list[i].current_status_message
 
+# Function to select friend for send and read messages , delete friend and red chat history.
+
 
 def select_friend(login_name):
     select = 1
-    print login_name
+    # print login_name
     for i in range(0, len(spy_list)):
         if spy_list[i].name == login_name:
             if not spy_list[i].friend_list:
@@ -135,14 +151,15 @@ def select_friend(login_name):
                 return choice - 1
 
 
+# Function to send message to selected friend.
+
 def send_message(login_name):
     print colored("WARNING", "red")
-    print colored("words limit is 100,if message is exceeded by 100,you will be deleted automatically\n", "red")
-
+    print colored("words limit is 100,if message is exceeded by 100,you will be deleted automatically", "red")
     friend_choice = select_friend(login_name)
     # print friend_choice
 
-    print "What do you want to say? \n 1.Send a secret message \n 2.Send a direct short message to user"
+    print "What do you want to do? \n 1.Send a secret message \n 2.Send a direct short message to user"
     choice = int(raw_input("Enter Your Choice: "))
 
     if choice == 1:
@@ -150,6 +167,7 @@ def send_message(login_name):
         for i in range(0, len(spy_list)):
             if spy_list[i].name == login_name:
                 if 0 < len(message) < 100:
+                    # Encryption Algorithm
                     encryption_key = int(raw_input("Enter your encryption key: "))
                     for j in range(0, len(message)):
                         store.append(ord(message[j]) + encryption_key + random_number)
@@ -184,6 +202,8 @@ def send_message(login_name):
                 spy_list[i].friends_list[friend_choice].chat.append(Chat(chat_message, chat_sent_by_me))
 
 
+# Function read message from selected Friend
+
 def read_message(login_name):
     print "What do you want to do??\n1.Read a decrypted message \n 2.Read a short message"
     ques = int(raw_input("Enter Your Choice: "))
@@ -196,7 +216,7 @@ def read_message(login_name):
                 decryption_key = int(raw_input("Enter the decryption key :"))
                 for j in range(0, len(store)):
                     decrypt = chr(store[j] - decryption_key - random_number)
-                chat_message.append(decrypt)
+                    chat_message.append(decrypt)
                 chat_sent_by_me = False
                 spy_list[i].friend_list[sender].chats.append(Chat(chat_message, chat_sent_by_me))
                 print "Decrypting your message...."
@@ -212,6 +232,45 @@ def read_message(login_name):
                     chat_sent_by_me = False
                     spy_list[i].friend_list[sender].chats.append(Chat(chat_message, chat_sent_by_me))
                     print "Message Is : " + k
+
+# Function to read chat history with timestamp
+
+
+def read_chats(login_name):
+    select = select_friend(login_name)
+    for i in range(0, len(spy_list)):
+        if spy_list[i].name == login_name:
+            if len(spy_list[i].friend_list[select].chats) == 0:
+                print "no chat exist :"
+            else:
+                for chat in spy_list[i].friend_list[select].chats:
+                    if chat.sent_by_me:
+                        print '[%s] %s: %s' % (colored(chat.time.strftime("%d %B %Y %H:%M"), "blue"), colored("Me", "red"), chat.message)
+                else:
+                    print '[%s] %s receive: %s' % (
+                    chat.time.strftime("%d %B %Y %H:%M"), spy_list[i].friend_list[select].name, "".join(map(str, chat.message)))
+
+# Function to delete to friend
+
+
+def delete_friend(login_name):
+    select = select_friend(login_name)
+    for i in range(0, len(spy_list)):
+        if spy_list[i].name == login_name:
+            del spy_list[i].friend_list[select]
+    print "Friend Deleted!!"
+    print "Updated Friend List Is: "
+    for i in range(0, len(spy_list)):
+        if spy_list[i].name == login_name:
+            index = 1
+            for j in range(0, len(spy_list[i].friend_list)):
+                print "%d. %s %s aged %d having ratings %d is online"%(index, spy_list[i].friend_list[j].salutation,
+                                                                           spy_list[i].friend_list[j].name, spy_list[i].friend_list[j].age,
+                                                                           spy_list[i].friend_list[j].rating)
+                index = index +1
+
+
+# Function for signing up for the application
 
 
 def signup():
@@ -259,6 +318,8 @@ def signup():
     else:
         print 'Sorry you are not of the correct age to be a spy'
 
+# Function to provide login facility to the spy.
+
 
 def login():
     while True:
@@ -297,6 +358,10 @@ def login():
                 elif choice == 4:
                     read_message(login_name)
                 elif choice == 5:
+                    read_chats(login_name)
+                elif choice == 6:
+                    delete_friend(login_name)
+                elif choice == 7:
                     start()
                 else:
                     print 'Enter Valid Choice'
@@ -306,6 +371,8 @@ def login():
 
         else:
             print "You Are Not Existing Spy!! Please Sign Up"
+
+# Main Function
 
 
 def start():
